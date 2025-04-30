@@ -10,7 +10,7 @@
 <h1>Elenco Docenti</h1>
 
 <a class="btn btn-primary mb-3" href="<c:url value='/docenti/nuovo'/>">Nuovo Docente</a>
-
+<a class="btn btn-warning mb-3" href="<c:url value='/'/>">Torna a Menu</a>
 <table class="table table-striped">
     <thead>
     <tr>

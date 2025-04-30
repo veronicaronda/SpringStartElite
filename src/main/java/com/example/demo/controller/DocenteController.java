@@ -23,7 +23,6 @@ public class DocenteController {
     public String list(Model model) {
         List<Docente> docenti = new ArrayList<>();
         docenti = docenteService.findAll();
-        System.out.println(docenti);
         model.addAttribute("docenti", docenti);
         return "list-docenti";
     }
