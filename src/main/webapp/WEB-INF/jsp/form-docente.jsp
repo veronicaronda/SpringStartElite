@@ -29,6 +29,13 @@
                       <label class="form-label">Data di nascita</label>
                       <form:input type="date" cssClass="form-control" path="dataDiNascita" />
                   </div>
+                  <div class="mb-3">
+                      <label class="form-label">Assegna uno o più corsi:</label>
+                       <form:select multiple="true" cssClass="form-control" path="corsoIds">
+                          <form:options  items="${corsi}" itemValue="id" itemLabel="nome" />
+
+                       </form:select>
+                   </div>
                   <div class="mb-3 d-flex justify-content-end">
                   <button type="submit" class="btn btn-success mt-4">
                      <a>Salva Docente</a>

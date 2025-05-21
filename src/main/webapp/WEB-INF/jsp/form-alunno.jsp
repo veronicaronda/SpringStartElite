@@ -38,6 +38,13 @@
                       <label class="form-label">Voto</label>
                       <form:input type="number" step=".1" cssClass="form-control" path="voto" />
                   </div>
+                  <div class="mb-3">
+                    <label class="form-label">Assegna uno o più corsi:</label>
+                    <form:select multiple="true" cssClass="form-control" path="corsiIds">
+                          <form:options  items="${corsi}" itemValue="id" itemLabel="nome" />
+
+                    </form:select>
+                  </div>
                   <div class="mb-3 d-flex justify-content-end">
                   <button type="submit" class="btn btn-success mt-4">
                      <a>Salva Alunno</a>
