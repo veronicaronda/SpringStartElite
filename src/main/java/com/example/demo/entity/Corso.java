@@ -33,7 +33,7 @@ public class Corso {
 
     @Getter
     @Setter
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,CascadeType.DETACH})
     @JoinColumn(name = "id_docente")
     private Docente docente;
 

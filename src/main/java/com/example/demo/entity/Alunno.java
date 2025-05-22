@@ -43,7 +43,7 @@ public class Alunno {
     private double voto;
     @Getter
     @Setter
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST,CascadeType.DETACH})
     @JoinTable(
             name = "corso_alunni",
             joinColumns = {@JoinColumn(name = "id_alunni")},

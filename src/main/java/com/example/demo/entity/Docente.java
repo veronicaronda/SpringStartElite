@@ -34,7 +34,7 @@ public class Docente {
 
     @Getter
     @Setter
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH},mappedBy = "docente")
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,  CascadeType.DETACH},mappedBy = "docente")
     private List<Corso> corsi;
 
     /* costruttori */

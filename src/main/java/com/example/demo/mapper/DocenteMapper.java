@@ -49,19 +49,21 @@ public class DocenteMapper {
     }
     private List<Corso> convertFromDtoToEntityCorsi(List<CorsoDTO> corsiDto){
         List<Corso> corsi = new ArrayList<>();
-        System.out.println(corsiDto);
 
         for (CorsoDTO corsoDto : corsiDto){
             Corso corso = new Corso();
+
             corso.setId(corsoDto.getId());
             corso.setNome(corsoDto.getNome());
             corso.setOre(corsoDto.getOre());
             corso.setAnnoAccademico(corsoDto.getAnnoAccademico());
             corsi.add(corso);
+
         }
 
         return corsi;
     }
+
     public void updateFromDtoToEntity(DocenteDTO docenteDto, Docente docente){
         docente.setId(docenteDto.getId());
         docente.setNome(docenteDto.getNome());
@@ -78,7 +80,7 @@ public class DocenteMapper {
         docente.setNome(docenteDto.getNome());
         docente.setCognome(docenteDto.getCognome());
         docente.setDataDiNascita(docenteDto.getDataDiNascita());
-        //docente.setCorsi(convertFromDtoToEntityCorsi(docenteDto.getCorsi()));
+        docente.setCorsi(convertFromDtoToEntityCorsi(docenteDto.getCorsi()));
         return docente;
     }
 }
