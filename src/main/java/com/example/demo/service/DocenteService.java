@@ -72,10 +72,14 @@ public class DocenteService {
         : new ArrayList<>();
         fullCorsi.forEach(corso -> System.out.println(corso.getNome()));
         if (docenteDto.getId() != null){
+
             Docente docente = docenteRepository.findById(docenteDto.getId())
                     .orElseThrow(EntityNotFoundException::new);
+
             docenteMapper.updateFromDtoToEntity(docenteDto, docente);
+
             docente.setCorsi(fullCorsi);
+
             for (Corso corso : fullCorsi) {
                 corso.setDocente(docente);
             }
