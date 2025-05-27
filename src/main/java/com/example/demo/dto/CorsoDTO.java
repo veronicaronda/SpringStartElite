@@ -14,8 +14,8 @@ public class CorsoDTO {
     private int ore;
     private int annoAccademico;
 
-    private DocenteDTO docente;
-    private  List<AlunnoDTO> alunni;
+    private DocenteWithoutCorsiDTO docente;
+    private  List<AlunnoWithoutCorsiDTO> alunni;
     private List<Long> alunniIds;
     private List<Long> corsiIds;
 

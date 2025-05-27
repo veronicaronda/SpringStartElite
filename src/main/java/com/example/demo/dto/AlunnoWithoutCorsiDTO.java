@@ -1,19 +1,14 @@
 package com.example.demo.dto;
 
-import com.example.demo.entity.Corso;
-import lombok.*;
+import lombok.Data;
 
 import java.sql.Date;
-import java.util.List;
-
 @Data
-public class AlunnoDTO {
+public class AlunnoWithoutCorsiDTO {
     private Long id;
     private String nome;
     private String cognome;
     private Date dataDiNascita;
     private String cittaDiResidenza;
     private Double voto;
-    private List<Long> corsiIds;
-    private List<CorsoWithoutAlunniDTO> corsi;
 }

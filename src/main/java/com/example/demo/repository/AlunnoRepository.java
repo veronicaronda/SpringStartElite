@@ -12,8 +12,8 @@ import java.util.List;
 
 @Repository
 public interface AlunnoRepository extends JpaRepository<Alunno, Long> {
-    @Query("SELECT DISTINCT a FROM Alunno a LEFT JOIN FETCH a.corsi ORDER BY a.id ASC")
-    List<Alunno> getAlunniWithCorsiOrderBy();
+//    @Query("SELECT DISTINCT a FROM Alunno a LEFT JOIN FETCH a.corsi ORDER BY a.id ASC")
+//    List<Alunno> getAlunniWithCorsiOrderBy();
 
     @NativeQuery(value = "SELECT * FROM Alunni a WHERE nome ILIKE %:keyword% OR cognome ILIKE %:keyword%")
     List<Alunno> getAlunniByNameOrSurname(@Param("keyword") String keyword);

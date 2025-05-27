@@ -9,40 +9,35 @@ import java.sql.Date;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "Alunni")
 public class Alunno {
-    @Getter
-    @Setter
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter
-    @Setter
+
     @Column(nullable = false)
     private String nome;
 
-    @Getter
-    @Setter
+
     @Column(nullable = false)
     private String cognome;
 
-    @Getter
-    @Setter
+
     @Column(nullable = false, unique = true)
     private Date dataDiNascita;
 
-    @Getter
-    @Setter
+
     @Column(name="citta_residenza", nullable = false)
     private String cittaDiResidenza;
 
-    @Getter
-    @Setter
+
     @Column(nullable = false)
     private double voto;
-    @Getter
-    @Setter
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH})
     @JoinTable(
             name = "corso_alunni",

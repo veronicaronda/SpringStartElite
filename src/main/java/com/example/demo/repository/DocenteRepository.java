@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DocenteRepository extends JpaRepository<Docente, Long> {
-    @Query("SELECT DISTINCT d FROM Docente d LEFT JOIN FETCH d.corsi cd ORDER BY d.id ASC")
-    List<Docente> findAllWithCorsiOrderBy();
+//    @Query("SELECT DISTINCT d FROM Docente d LEFT JOIN FETCH d.corsi cd ORDER BY d.id ASC")
+//    List<Docente> findAllWithCorsiOrderBy();
     @NativeQuery(value = "SELECT * FROM DOCENTE d WHERE d.nome ILIKE %:docenteNome% ")
     List<Docente> findDocenteByName(@Param("docenteNome") String docenteNome);
     @NativeQuery(value = "SELECT * FROM DOCENTE d WHERE d.cognome ILIKE %:docenteCognome%")

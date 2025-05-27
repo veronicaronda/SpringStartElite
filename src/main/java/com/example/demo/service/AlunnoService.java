@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AlunnoDTO;
+import com.example.demo.dto.AlunnoWithoutCorsiDTO;
 import com.example.demo.dto.CorsoDTO;
 import com.example.demo.entity.Alunno;
 import com.example.demo.entity.Corso;
@@ -9,6 +10,7 @@ import com.example.demo.mapper.CorsoMapper;
 import com.example.demo.repository.AlunnoRepository;
 import com.example.demo.repository.CorsoRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,39 +31,30 @@ public class AlunnoService {
 
 
 
-    public List<AlunnoDTO> findAllWithCorsi(){
-        List<Alunno> alunni = new ArrayList<>();
-        alunni =alunnoRepository.getAlunniWithCorsiOrderBy();
-        return alunni.stream().map(alunnoMapper::convertFromEntityToDto)
-                .collect(Collectors.toList());
-    }
+
     public  List<AlunnoDTO> findAll(){
-        List<Alunno> alunni = new ArrayList<>();
-        alunni = alunnoRepository.findAll();
-        return alunni.stream().map(alunnoMapper::convertFromEntityToDto)
-                .collect(Collectors.toList());
+        return alunnoMapper.toDto(alunnoRepository.findAll());
     }
 
     public AlunnoDTO getById(Long id){
-        Alunno alunno = alunnoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        return alunnoMapper.convertFromEntityToDto(alunno);
+        return alunnoMapper.toDto(alunnoRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
     public List<AlunnoDTO> getAlunnoByNameOrSurname(String keyword){
-        List<Alunno> alunni = new ArrayList<>();
-        alunni = alunnoRepository.getAlunniByNameOrSurname(keyword);
+//        List<Alunno> alunni = new ArrayList<>();
+//        alunni = alunnoRepository.getAlunniByNameOrSurname(keyword);
 
-        return alunni.stream().map(alunnoMapper::convertFromEntityToDto)
+        return alunnoRepository.getAlunniByNameOrSurname(keyword).stream().map(alunnoMapper::toDto)
                 .collect(Collectors.toList());
     }
     public List<AlunnoDTO> getAlunniPassed(){
-        List<Alunno> alunni = new ArrayList<>();
-        alunni = alunnoRepository.getAlunniPassed();
-        return alunni.stream().map(alunnoMapper::convertFromEntityToDto)
+//        List<Alunno> alunni = new ArrayList<>();
+//        alunni = alunnoRepository.getAlunniPassed();
+        return alunnoRepository.getAlunniPassed().stream().map(alunnoMapper::toDto)
                 .collect(Collectors.toList());
     }
-
-    public Alunno save(AlunnoDTO alunnoDto){
+    @Transactional
+    public AlunnoDTO save(AlunnoDTO alunnoDto){
 
         List<Corso> fullCorsi = alunnoDto.getCorsiIds() != null
                 ? corsoRepository.findAllById(alunnoDto.getCorsiIds())
@@ -70,13 +63,24 @@ public class AlunnoService {
         if (alunnoDto.getId() != null) {
             Alunno alunno = alunnoRepository.findById(alunnoDto.getId())
                     .orElseThrow(EntityNotFoundException::new);
-            alunnoMapper.updateFromDtoToEntity(alunnoDto, alunno);
+           alunnoMapper.updateAlunno(alunnoDto, alunno);
             alunno.setCorsi(fullCorsi); // ✅ hydration handled here
-            return alunnoRepository.save(alunno);
+            alunnoRepository.save(alunno);
+            return alunnoMapper.toDto(alunno);
         } else {
-            Alunno alunno = alunnoMapper.convertFromDtoToEntity(alunnoDto);
-            alunno.setCorsi(fullCorsi); // ✅ hydration handled here
-            return alunnoRepository.save(alunno);
+            Alunno alunno = alunnoMapper.toEntity(alunnoDto);
+
+
+            alunno.setCorsi(fullCorsi);
+            fullCorsi.forEach(corso -> {
+                if (!corso.getAlunni().contains(alunno)) {
+                    corso.getAlunni().add(alunno);
+                    corsoRepository.save(corso);
+                }
+            });
+
+            alunnoRepository.save(alunno);
+            return alunnoMapper.toDto(alunno);
         }
     }
 

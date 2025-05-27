@@ -11,10 +11,6 @@ import java.util.List;
 
 @Repository
 public interface CorsoRepository extends JpaRepository<Corso,Long> {
-    @Query("SELECT DISTINCT c FROM Corso c LEFT JOIN FETCH c.alunni ORDER BY c.id ASC")
-
-    List<Corso> getCorsiWithAlunniOrderBy();
-
 
     @NativeQuery(value = "SELECT * FROM Corso c WHERE nome ILIKE %:nome%")
     List<Corso> findCorsoByName(String nome);

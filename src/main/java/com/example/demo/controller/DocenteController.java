@@ -1,21 +1,17 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CorsoDTO;
 import com.example.demo.dto.DocenteDTO;
-import com.example.demo.entity.Docente;
 import com.example.demo.service.CorsoService;
 import com.example.demo.service.DocenteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/docenti")
 public class DocenteController {
 
@@ -25,79 +21,70 @@ public class DocenteController {
     @Autowired
     CorsoService corsoService;
 
+
+
     // LISTA
     @GetMapping("/lista")
-    public String list(Model model) {
-
-        List<CorsoDTO> corsi = new ArrayList<>();
-        corsi = corsoService.findAll();
-        model.addAttribute("docenti",  docenteService.findAll());
-        model.addAttribute("corsi", corsi);
-        model.addAttribute("docenteFiltro", new DocenteDTO());
-        model.addAttribute("isSearch", false);
-        return "list-docenti";
-    }
-    @GetMapping("/list-docente-by-name")
-    public String getDocenteByName(@ModelAttribute("docenteFiltro") Docente docenteFiltro, Model model){
-        List<DocenteDTO> docenti = new ArrayList<>();
-
-        docenti =  docenteService.findDocenteByName(docenteFiltro.getNome());
-        model.addAttribute("docenti", docenti);
-        model.addAttribute("docenteFiltro", docenteFiltro);
-        model.addAttribute("isSearch", true);
-        return "list-docenti";
-    }
-    @GetMapping("/list-docente-by-surname")
-    public String getDocenteBySurname(@ModelAttribute("docenteFiltro") Docente docenteFiltro, Model model){
-        List<DocenteDTO> docenti = new ArrayList<>();
-        docenti =  docenteService.findDocenteBySurname(docenteFiltro.getCognome());
-        model.addAttribute("docenti", docenti);
-        model.addAttribute("docenteFiltro", docenteFiltro);
-        model.addAttribute("isSearch", true);
-        return "list-docenti";
+    public List<DocenteDTO> list() {
+//        List<DocenteDTO> docenti = new ArrayList<>();
+//        docenti = docenteService.findAll();
+        return docenteService.findAll();
     }
 
-    // FORM NUOVO
-    @GetMapping("/nuovo")
-    public String showAdd(Model model) {
-        model.addAttribute("docente", new DocenteDTO());
-        model.addAttribute("corsi", corsoService.findAll());
-        return "form-docente";
-    }
+//    @PostMapping("/search")
+//    public ResponseEntity<ResponsePageDTO<List<DocenteDTO>>> getObjectType(@RequestParam(defaultValue = "0") Integer page,
+//                                                                           @RequestParam(defaultValue = "30") Integer size,
+//                                                                           @RequestParam(defaultValue = "") List<String> sortList,
+//                                                                           @RequestParam(defaultValue = "DESC") Sort.Direction sortOrder,
+//                                                                           @RequestBody(required = false) List<FilterDTO> filterDtoList) {
+//        ResponsePageDTO<List<DocenteDTO>> responsePageDto = service.findByCustomFilter(filterDtoList, page, size, sortList, sortOrder, mapper::toDto);
+//        return new ResponseEntity<>(responsePageDto, HttpStatus.OK);
+//    }
+
+//    @GetMapping("/list-docente-by-name/{docenteNome}")
+//    public List<DocenteDTO> getDocenteByName(@PathVariable("docenteNome") String docenteNome){
+//        List<DocenteDTO> docenti = new ArrayList<>();
+//
+//        docenti =  docenteService.findDocenteByName(docenteNome);
+//
+//        return docenti;
+//    }
+//    @GetMapping("/list-docente-by-surname/{docenteCognome}")
+//    public List<DocenteDTO> getDocenteBySurname(@PathVariable("docenteCognome") String docenteCognome){
+//        List<DocenteDTO> docenti = new ArrayList<>();
+//        docenti =  docenteService.findDocenteBySurname(docenteCognome);
+//
+//        return docenti;
+//    }
+
 
     // SALVA NUOVO
     @PostMapping("/add")
-    public String create(@ModelAttribute("docente") DocenteDTO docenteDto,
-                         BindingResult br) {
-        if (br.hasErrors()) return "form-docente";
-        docenteService.save(docenteDto);
-        return "redirect:/docenti/lista";
+    public DocenteDTO create(@RequestBody DocenteDTO docenteDto) {
+        return docenteService.save(docenteDto);
     }
 
-    // FORM EDIT
-    @GetMapping("/{id}/edit")
-    public String showEdit(@PathVariable Long id, Model model) {
-        model.addAttribute("docente", docenteService.get(id));
-        model.addAttribute("corsi", corsoService.findAll());
-        return "form-docente";
-    }
 
     // AGGIORNA
-    @PostMapping("/{id}")
-    public String update(@PathVariable Long id,
-                         @ModelAttribute("docente") DocenteDTO docenteDto,
-                         BindingResult br) {
-        if (br.hasErrors()) return "form-docente";
-        docenteDto.setId(id);
-        docenteService.save(docenteDto);
-        return "redirect:/docenti";
+    @PutMapping("/{id}")
+    public ResponseEntity<DocenteDTO> update(@PathVariable Long id,
+                                             @RequestBody DocenteDTO docenteDto) {
+        try{
+            docenteDto.setId(id);
+            DocenteDTO docentDto = docenteService.save(docenteDto);
+            return ResponseEntity.ok(docentDto);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+
+
     }
 
     // DELETE
-    @GetMapping("/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<Void>  delete(@PathVariable Long id) {
         docenteService.delete(id);
-        return "redirect:/docenti/lista";
+        return  ResponseEntity.noContent().build();
     }
 
 
@@ -108,4 +95,3 @@ public class DocenteController {
 
 
 }
-

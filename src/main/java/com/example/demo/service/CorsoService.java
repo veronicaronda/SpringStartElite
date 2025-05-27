@@ -1,11 +1,13 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AlunnoDTO;
+import com.example.demo.dto.AlunnoWithoutCorsiDTO;
 import com.example.demo.dto.CorsoDTO;
 import com.example.demo.dto.DocenteDTO;
 import com.example.demo.entity.Alunno;
 import com.example.demo.entity.Corso;
 import com.example.demo.entity.Docente;
+import com.example.demo.mapper.AlunnoMapper;
 import com.example.demo.mapper.CorsoMapper;
 import com.example.demo.repository.AlunnoRepository;
 import com.example.demo.repository.CorsoRepository;
@@ -24,58 +26,72 @@ public class CorsoService {
     CorsoRepository corsoRepository;
 
     @Autowired
-    AlunnoRepository alunnoRepository;
+    private AlunnoRepository alunnoRepository;
     @Autowired
     DocenteRepository docenteRepository;
     @Autowired
     CorsoMapper corsoMapper;
+    @Autowired
+    AlunnoMapper alunnoMapper;
 
     public List<CorsoDTO> findAll(){
-        List<Corso> corsi = new ArrayList<>();
-        corsi = corsoRepository.getCorsiWithAlunniOrderBy();
-        return corsi.stream().map(corsoMapper::convertFromEntityToDtoWithAlunni)
-                .collect(Collectors.toList());
+        List<Corso> corsi = corsoRepository.findAll();
+        List<CorsoDTO> corsiDtos = new ArrayList<>();
+        for(Corso corso : corsi) {
+            CorsoDTO corsoDto = corsoMapper.toDto(corso);
+
+            if (corso.getAlunni() != null) {
+                List<AlunnoWithoutCorsiDTO> alunniDTO = alunnoMapper.toDtoWithoutCorsi(corso.getAlunni());
+                corsoDto.setAlunni(alunniDTO);
+            } else {
+                corsoDto.setAlunni(null);
+            }
+            corsiDtos.add(corsoDto);
+        }
+        return corsiDtos;
+
     }
 
     public List<CorsoDTO> findAllById(List<Long> courseIds){
-        List<Corso> corsi = new ArrayList<>();
-        corsi = corsoRepository.findAllById(courseIds);
-        return corsi.stream().map(corsoMapper::convertFromEntityToDtoWithAlunni)
+//        List<Corso> corsi = new ArrayList<>();
+//        corsi = corsoRepository.findAllById(courseIds);
+        return corsoRepository.findAllById(courseIds).stream().map(corsoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<CorsoDTO> findCorsoByName(String nome){
-        List<Corso> corsi = new ArrayList<>();
-        corsi = corsoRepository.findCorsoByName(nome);
-        return corsi.stream().map(corsoMapper::convertFromEntityToDto)
+//        List<Corso> corsi = new ArrayList<>();
+//        corsi = corsoRepository.findCorsoByName(nome);
+        return corsoRepository.findCorsoByName(nome).stream().map(corsoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<CorsoDTO> findCorsoByYear(int annoAccademico){
-        List<Corso> corsi = new ArrayList<>();
-        corsi = corsoRepository.findCorsoByYear(annoAccademico);
-        return corsi.stream().map(corsoMapper::convertFromEntityToDto)
+//        List<Corso> corsi = new ArrayList<>();
+//        corsi = corsoRepository.findCorsoByYear(annoAccademico);
+        return corsoRepository.findCorsoByYear(annoAccademico).stream().map(corsoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<CorsoDTO> findCorsoByTeacher(String keyword){
-        List<Corso> corsi = new ArrayList<>();
-        corsi = corsoRepository.findCorsoByTeacher(keyword);
-        return corsi.stream().map(corsoMapper::convertFromEntityToDto)
+//        List<Corso> corsi = new ArrayList<>();
+//        corsi = corsoRepository.findCorsoByTeacher(keyword);
+        return corsoRepository.findCorsoByTeacher(keyword)
+                .stream().map(corsoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    public Corso save(CorsoDTO corsoDto, Long docenteId) {
+    public CorsoDTO save(CorsoDTO corsoDto) {
         List<Alunno> fullAlunni = corsoDto.getAlunniIds() != null
                 ? alunnoRepository.findAllById(corsoDto.getAlunniIds())
                 : new ArrayList<>();
 
-        Docente docente = docenteRepository.findById(docenteId).orElseThrow(EntityNotFoundException::new);
+        Docente docente = docenteRepository.findById(corsoDto.getDocente().getId()).orElseThrow(EntityNotFoundException::new);
 
         if (corsoDto.getId() != null) {
             Corso corso = corsoRepository.findById(corsoDto.getId())
                     .orElseThrow(EntityNotFoundException::new);
-            corsoMapper.updateFromDtoToEntity(corsoDto, corso);
+            corsoMapper.updateCorso(corsoDto, corso);
 
             corso.setDocente(docente);
             corso.setAlunni(fullAlunni); // ✅ hydration handled here
@@ -86,9 +102,11 @@ public class CorsoService {
                     alunno.getCorsi().add(corso);
                 }
             });
-            return corsoRepository.save(corso);
+            corsoRepository.save(corso);
+            return corsoMapper.toDto(corso);
+
         } else {
-            Corso corso = corsoMapper.convertFromDtoToEntity(corsoDto);
+            Corso corso = corsoMapper.toEntity(corsoDto);
             corso.setDocente(docente);
             corso.setAlunni(fullAlunni); // ✅ hydration handled here
             // Sync alunni
@@ -97,17 +115,17 @@ public class CorsoService {
                     alunno.getCorsi().add(corso);
                 }
             });
-            return corsoRepository.save(corso);
+            corsoRepository.save(corso);
+            return corsoMapper.toDto(corso);
         }
     }
 
     public CorsoDTO getById(Long id){
-        Corso corso = new Corso();
-        corso = corsoRepository.findById(id).orElseThrow();
-        return corsoMapper.convertFromEntityToDtoWithAlunni(corso);
+
+        return corsoMapper.toDto(corsoRepository.findById(id).orElseThrow());
     }
 
-    public void deleteCorsoFromAlunno(Long id, Long alunnoId){
+    public void deleteCorsoFromAlunno(Long id, Long alunnoId) {
         Alunno alunno = alunnoRepository.findById(alunnoId).orElseThrow(EntityNotFoundException::new);
         Corso corso = corsoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
@@ -116,8 +134,6 @@ public class CorsoService {
 
         alunnoRepository.save(alunno);
         corsoRepository.save(corso);
-
-
     }
 
     public void  delete(Long id){
